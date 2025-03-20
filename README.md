@@ -41,7 +41,7 @@
 8. 连接成功以后，执行以下命令
 
    ```shell
-   cd ImmortalWrt && ./scripts/feeds update -a && ./scripts/feeds install -a && make menuconfig
+   cd /work/Actions-ImmortalWrt/Actions-ImmortalWrt/ImmortalWrt && ./scripts/feeds update -a && ./scripts/feeds install -a && make menuconfig
    ```
 
 9. 根据自己的需要来定制 config![make-config](img/make-config.png)
