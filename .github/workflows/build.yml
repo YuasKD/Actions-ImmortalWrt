@@ -38,6 +38,7 @@ jobs:
         run: |
           sudo apt update -y
           sudo apt full-upgrade -y
+          sudo apt-get install -y build-essential libncurses5-dev libncursesw5-dev
           sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
 
       - name: 检出当前仓库 (配置文件仓库)
