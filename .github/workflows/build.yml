@@ -111,5 +111,5 @@ jobs:
       - name: 上传编译结果
         uses: actions/upload-artifact@v4
         with:
-          name: ImmortalWrt-编译结果
+          name: ImmortalWrt-Bulid-Result
           path: ImmortalWrt/bin/targets
