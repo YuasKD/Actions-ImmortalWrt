@@ -4,3 +4,4 @@
 # git clone --depth=1 https://github.com/EOYOHOO/rkp-ipid.git package/rkp-ipid
 git clone https://github.com/sirpdboy/luci-app-wizard
 git clone https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
+git clone https://github.com/sirpdboy/luci-app-advanced.git
