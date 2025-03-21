@@ -41,6 +41,7 @@ jobs:
             ${{ runner.os }}-openwrt
 
       - name: Run diy.sh
+        working-directory: ImmortalWrt
         run: |
           chmod +x diy.sh
           ./diy.sh
@@ -89,7 +90,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: x86_64-${{ github.run_number }}
-          name: Auto Build ImmortalWrt ${{ github.run_id }}
+          name: ImmortalWrt ${{ github.run_id }}
           body_path: selected_plugins.txt
           files: output/*
         env:
