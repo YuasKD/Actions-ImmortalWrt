@@ -1,115 +1,104 @@
-name: 🚀 自动编译 ImmortalWrt（支持SSH实时调试）
+name: Build ImmortalWrt Optimized
 
 on:
-  schedule:
-    - cron: '0 2 * * *'  # 北京时间每天上午10点自动构建
   workflow_dispatch:
-    inputs:
-      owner:
-        description: 'ImmortalWrt 仓库拥有者'
-        type: string
-        required: true
-        default: 'immortalwrt'
-      repo:
-        description: 'ImmortalWrt 仓库名'
-        type: string
-        required: true
-        default: 'immortalwrt'
-      branch:
-        description: 'ImmortalWrt 仓库分支'
-        type: string
-        required: true
-        default: 'master'
-      multithreading:
-        description: '开启多线程编译'
-        type: boolean
-        default: true
-      ssh_debug:
-        description: '启用SSH实时调试'
-        type: boolean
-        default: false
 
 env:
   TERM: xterm
+  TZ: Asia/Shanghai
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-    name: 🚀 编译 ImmortalWrt
+    name: Build ImmortalWrt
     steps:
-      - name: 初始化环境 (安装依赖)
-        run: |
-          sudo apt update -y
-          sudo apt full-upgrade -y
-          sudo apt-get install -y build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
-            gettext libncurses-dev libssl-dev python3 python3-distutils rsync unzip zlib1g-dev file \
-            wget ccache
-
-      - name: 检出当前仓库 (配置文件仓库)
-        uses: actions/checkout@v4
-
-      - name: 检出 ImmortalWrt 源码
-        uses: actions/checkout@v4
+      - name: Start SSH debug session (optional)
+        if: ${{ github.event.inputs.ssh_debug == 'true' }}
+        uses: mxschmitt/action-tmate@v3
         with:
-          repository: '${{ inputs.owner }}/${{ inputs.repo }}'
-          ref: ${{ inputs.branch }}
-          path: ImmortalWrt
+          limit-access-to-actor: true
+      - name: 🔧 准备环境
+        uses: actions/checkout@v3
 
-      - name: 复制编译配置文件
+      - name: ⏱️ 缓存 dl 和工具链
+        uses: actions/cache@v3
+        with:
+          path: |
+            dl
+            build_dir/host
+            staging_dir/host
+          key: ${{ runner.os }}-openwrt-${{ hashFiles('**/feeds.conf.default') }}
+          restore-keys: |
+            ${{ runner.os }}-openwrt
+
+      - name: Initialize Build Environment (official script)
         run: |
-          cp -f .config feeds.conf.default diy.sh ImmortalWrt/
-
-      - name: 执行 DIY 自定义脚本
-        working-directory: ImmortalWrt
+          sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+          
+      - name: 📦 更新 feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+      - name: Run diy.sh
         run: |
           chmod +x diy.sh
           ./diy.sh
 
-      - name: 更新并安装 Feeds
-        working-directory: ImmortalWrt
+      - name: 📁 加载自定义配置
         run: |
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
+          [ -f .config ] && echo "已加载自定义 .config"
 
-      - name: 预下载编译所需依赖
-        working-directory: ImmortalWrt
+      - name: ⚙️ 编译固件
         run: |
           make defconfig
-          make download -j8
+          make download -j$(nproc)
+          make -j$(nproc) V=s
 
-      - name: 上传编译前配置
-        uses: actions/upload-artifact@v4
+      - name: Package and Rename Firmware
+        run: |
+          mkdir -p output
+          DATE=$(date +%Y%m%d-%H%M)
+          find bin/targets/ -name "*combined*.img*" -exec cp {} output/ \;
+          cd output
+          for f in *; do mv "$f" "immortalwrt-x86_64-$DATE-$f"; done
+
+      - name: 📤 上传固件到 GitHub Artifact
+        uses: actions/upload-artifact@v3.1.3
         with:
-          name: 编译前配置文件
-          path: |
-            ImmortalWrt/.config
-            ImmortalWrt/feeds.conf.default
+          name: immortalwrt-x86_64
+          path: output
 
-      - name: 🔥 SSH 实时调试（可选）
-        if: ${{ inputs.ssh_debug == true }}
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 60
-
-      - name: 开始编译固件（多线程）
-        if: ${{ inputs.multithreading == true }}
+      - name: Archive modified config files
+        run: |
+          mkdir -p config_backup
+          cp .config feeds.conf.default config_backup/
+          zip -r config_files.zip config_backup
+      - name: Upload config as artifact
+        uses: actions/upload-artifact@v3.1.3
+        with:
+          name: modified-config
+          path: config_files.zip
+      - name: Publish to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: x86_64-${{ github.run_number }}
+          name: 自动编译固件 ${{ github.run_id }}
+          body: |
+            固件架构：x86_64  
+            编译时间：${{ github.run_started_at }}  
+            包含常用插件和中文界面
+          files: output/*
+      - name: 生成已选插件列表
         working-directory: ImmortalWrt
         run: |
-          make -j$(nproc) V=s | tee build.log || make -j1 V=s
-
-      - name: 开始编译固件（单线程）
-        if: ${{ inputs.multithreading == false }}
-        working-directory: ImmortalWrt
-        run: |
-          make -j1 V=s | tee build.log
-
-      - name: 上传编译日志
-        uses: actions/upload-artifact@v4
+          grep '^CONFIG_PACKAGE_' .config | grep '=y' | cut -d_ -f3- | cut -d= -f1 | sort > selected_plugins.txt
+      - name: 发布到 GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: 编译日志
-          path: ImmortalWrt/build.log
-
-      - name: 上传编译结果
-        uses: actions/upload-artifact@v4
-        with:
-          name: ImmortalWrt-Bulid-Result
-          path: ImmortalWrt/bin/targets
+          tag_name: x86_64-${{ github.run_number }}
+          name: Auto Build ImmortalWrt ${{ github.run_id }}
+          body_path: ImmortalWrt/selected_plugins.txt
+          files: |
+            ImmortalWrt/bin/targets/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
