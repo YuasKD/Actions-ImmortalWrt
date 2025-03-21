@@ -23,8 +23,11 @@ jobs:
         with:
           limit-access-to-actor: true
 
-      - name: 🔧 Checkout Source
-        uses: actions/checkout@v3
+      - name: 🔧 Clone ImmortalWrt Source
+        run: |
+          git clone https://github.com/immortalwrt/immortalwrt.git .
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
 
       - name: ⏱️ Cache dl and toolchain
         uses: actions/cache@v3
@@ -36,15 +39,6 @@ jobs:
           key: ${{ runner.os }}-openwrt-${{ hashFiles('**/feeds.conf.default') }}
           restore-keys: |
             ${{ runner.os }}-openwrt
-
-      - name: Initialize Build Environment (official script)
-        run: |
-          sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
-
-      - name: 📦 Update feeds
-        run: |
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
 
       - name: Run diy.sh
         run: |
