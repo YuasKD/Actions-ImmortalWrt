@@ -90,7 +90,7 @@ jobs:
         if: ${{ inputs.multithreading == true }}
         working-directory: ImmortalWrt
         run: |
-          make -j$(nproc) V=s | tee build.log || make -j1 V=s
+          make -j$(nproc) V=s | tee build.log
 
       - name: 开始编译固件（单线程）
         if: ${{ inputs.multithreading == false }}
