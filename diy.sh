@@ -10,4 +10,5 @@ echo "CONFIG_PACKAGE_ipset=y" >> .config
 echo "CONFIG_PACKAGE_coremark=y" >> .config
 echo "CONFIG_PACKAGE_ksmbd-tools=y" >> .config
 echo "CONFIG_PACKAGE_collectd=y" >> .config
+echo "CONFIG_PACKAGE_nftables=y" >> .config
 
