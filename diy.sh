@@ -5,3 +5,9 @@
 #git clone https://github.com/sirpdboy/luci-app-advanced.git
 #git clone https://github.com/sirpdboy/luci-app-wizard
 #git clone https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
+echo "CONFIG_PACKAGE_iptables=y" >> .config
+echo "CONFIG_PACKAGE_ipset=y" >> .config
+echo "CONFIG_PACKAGE_coremark=y" >> .config
+echo "CONFIG_PACKAGE_ksmbd-tools=y" >> .config
+echo "CONFIG_PACKAGE_collectd=y" >> .config
+
