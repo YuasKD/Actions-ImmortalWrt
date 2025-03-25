@@ -53,7 +53,7 @@ jobs:
 
       - name: 复制编译配置文件
         run: |
-          cp -f .config feeds.conf.default diy.sh ImmortalWrt/
+          cp -vf $GITHUB_WORKSPACE/{.config,feeds.conf.default,diy.sh} ImmortalWrt/ || true
 
       - name: 执行 DIY 自定义脚本
         working-directory: ImmortalWrt
