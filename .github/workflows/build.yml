@@ -70,7 +70,7 @@ jobs:
       - name: 预下载编译所需依赖
         working-directory: ImmortalWrt
         run: |
-          make defconfig
+          make olddefconfig
           make download -j8
       - name: 上传编译前配置
         uses: actions/upload-artifact@v4
