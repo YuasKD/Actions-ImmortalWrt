@@ -51,9 +51,19 @@ jobs:
           ref: ${{ inputs.branch }}
           path: ImmortalWrt
 
+      - name: 检查自定义 .config 是否存在
+        run: |
+         ls -l .config
+         head -n 20 .config
+
       - name: 复制编译配置文件
         run: |
           cp -vf $GITHUB_WORKSPACE/{.config,feeds.conf.default,diy.sh} ImmortalWrt/ || true
+
+      - name: 检查 ImmortalWrt/.config 是否替换成功
+        run: |
+         ls -l ImmortalWrt/.config
+         head -n 20 ImmortalWrt/.config
 
       - name: 执行 DIY 自定义脚本
         working-directory: ImmortalWrt
