@@ -80,7 +80,11 @@ jobs:
       - name: 预下载编译所需依赖
         working-directory: ImmortalWrt
         run: |
+          cp .config .config.backup
+          # 运行 defconfig
           make defconfig
+          # 恢复配置文件
+          mv .config.backup .config
           make download -j8
           
       - name: 上传编译前配置
