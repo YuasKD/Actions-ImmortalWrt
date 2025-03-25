@@ -67,11 +67,12 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: 预下载编译所需依赖
-        working-directory: ImmortalWrt
-        run: |
-          make oldconfig
-          make download -j8
+      #- name: 预下载编译所需依赖
+        #working-directory: ImmortalWrt
+        #run: |
+          #make oldconfig
+          #make download -j8
+          
       - name: 上传编译前配置
         uses: actions/upload-artifact@v4
         with:
