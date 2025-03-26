@@ -51,38 +51,32 @@ jobs:
           ref: ${{ inputs.branch }}
           path: ImmortalWrt
 
-      - name: 更新并安装 Feeds
-        working-directory: ImmortalWrt
-        run: |
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      - name: 预下载编译所需依赖
-        working-directory: ImmortalWrt
-        run: |
-          # 运行 defconfig
-          make defconfig
-          make download -j8
-
-      - name: 检查自定义 .config 是否存在
-        run: |
-         ls -l .config
-         head -n 20 .config
+      
+      # - name: 检查自定义 .config 是否存在
+      #   run: |
+      #    ls -l .config
+      #    head -n 20 .config
 
       - name: 复制编译配置文件
         run: |
           cp -vf $GITHUB_WORKSPACE/{.config,feeds.conf.default,diy.sh} ImmortalWrt/ || true
 
-      - name: 检查 ImmortalWrt/.config 是否替换成功
-        run: |
-         ls -l ImmortalWrt/.config
-         head -n 20 ImmortalWrt/.config
+      # - name: 检查 ImmortalWrt/.config 是否替换成功
+      #   run: |
+      #    ls -l ImmortalWrt/.config
+      #    head -n 20 ImmortalWrt/.config
 
       - name: 执行 DIY 自定义脚本
         working-directory: ImmortalWrt
         run: |
           chmod +x diy.sh
           ./diy.sh
+
+      - name: 更新并安装 Feeds
+        working-directory: ImmortalWrt
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a    
           
       - name: 上传编译前配置
         uses: actions/upload-artifact@v4
@@ -90,7 +84,14 @@ jobs:
           name: Pre-build Configuration Files
           path: |
             ImmortalWrt/.config
-            ImmortalWrt/feeds.conf.default
+            ImmortalWrt/feeds.conf.default    
+
+      - name: 预下载编译所需依赖
+        working-directory: ImmortalWrt
+        run: |
+          # 运行 defconfig & download
+          make defconfig
+          make download -j8
 
       - name: 🔥 SSH 实时调试（可选）
         if: ${{ inputs.ssh_debug == true }}
