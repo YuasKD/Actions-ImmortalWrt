@@ -67,12 +67,12 @@ jobs:
       #   # run: cp -f .config feeds.conf.default diy.sh ImmortalWrt/
       #   run: cp -vf .config diy.sh ImmortalWrt/
 
-      - name: 编译下载
+      - name: Make Download
         working-directory: ImmortalWrt
         run: |
-          make defconfig
-          cat .config | grep openclash
           make download -j$(nproc)
+          cat .config | grep openclash
+          
       
       - name: 编译前上传配置 (Upload config before build)
         uses: actions/upload-artifact@v4
