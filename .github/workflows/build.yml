@@ -50,7 +50,7 @@ jobs:
       - name: 复制当前仓库的配置文件到 ImmortalWrt 仓库  (Copy current repo config to ImmortalWrt repo)
         # run: cp -f .config feeds.conf.default diy.sh ImmortalWrt/
         run: |
-         cp -vf .config diy.sh ImmortalWrt/
+         cp -f .config diy.sh ImmortalWrt/
          cd ImmortalWrt && cat .config | grep openclash
 
       - name: 运行 diy.sh (Run diy.sh)
@@ -70,6 +70,7 @@ jobs:
       - name: Make Download
         working-directory: ImmortalWrt
         run: |
+          make defconfig
           make download -j$(nproc)
           cat .config | grep openclash
           
