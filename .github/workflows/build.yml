@@ -96,7 +96,7 @@ jobs:
           运行 defconfig & download
           make defconfig
           ls -la | grep .config
-          cat $GITHUB_WORKSPACE/ImmortalWrt/.config | grep openclash
+          cat ~/work/Actions-ImmortalWrt/Actions-ImmortalWrt/ImmortalWrt/.config | grep openclash
           make download -j$(nproc)
 
       - name: 开始编译固件（多线程）
