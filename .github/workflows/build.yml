@@ -26,11 +26,11 @@ on:
         description: '使用 ssh 连接到编译环境 (Connect to the build environment using ssh)'
         type: boolean
         default: false
-
+        
 jobs:
   build:
     if: ${{inputs.ssh == false}}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: 🚀 编译 (Build)
     steps:
       - name: 下载编译所需的依赖 (Install the software packages required for compilation)
