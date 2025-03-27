@@ -95,7 +95,7 @@ jobs:
         run: |
           # 运行 defconfig & download
           make defconfig
-          cat ImmortalWrt/.config | grep openclash
+          cd ImmortalWrt & cat .config | grep openclash
           make download -j$(nproc)
 
       - name: 开始编译固件（多线程）
