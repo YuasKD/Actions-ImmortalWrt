@@ -61,10 +61,10 @@ jobs:
         run: |
           cp -vf $GITHUB_WORKSPACE/{.config,diy.sh} ImmortalWrt/ || true
 
-      # - name: 检查 ImmortalWrt/.config 是否替换成功
-      #   run: |
-      #    ls -l ImmortalWrt/.config
-      #    head -n 20 ImmortalWrt/.config
+      - name: 检查 ImmortalWrt/.config 是否替换成功
+        run: |
+         ls -l ImmortalWrt/.config
+         cat ImmortalWrt/.config | grep openclash
 
       - name: 执行 DIY 自定义脚本
         working-directory: ImmortalWrt
@@ -95,6 +95,7 @@ jobs:
         run: |
           # 运行 defconfig & download
           make defconfig
+          cat ImmortalWrt/.config | grep openclash
           make download -j$(nproc)
 
       - name: 开始编译固件（多线程）
